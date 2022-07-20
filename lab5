@@ -1,0 +1,49 @@
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.Bundle;
+import android.os.Handler;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+
+public class MainActivity extends AppCompatActivity {
+Button start,stop,reset;
+TextView result;
+Handler myhandler = new Handler();
+int i=0;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        start = findViewById(R.id.startxml);
+        stop = findViewById(R.id.stopxml);
+        result = findViewById(R.id.resultxml);
+        reset = findViewById(R.id.resetxml);
+         start.setOnClickListener(new View.OnClickListener() {
+             @Override
+             public void onClick(View view) {
+                 myhandler.postDelayed(updateTimer,0);
+             }
+         });
+         reset.setOnClickListener(new View.OnClickListener() {
+             @Override
+             public void onClick(View view) {
+                 i = 0;
+             }
+         });
+         stop.setOnClickListener(new View.OnClickListener() {
+             @Override
+             public void onClick(View view) {
+                 myhandler.removeCallbacks(updateTimer);
+             }
+         });
+    }
+    private final Runnable updateTimer = new Runnable() {
+        @Override
+        public void run() {
+            result.setText(""+i);
+            myhandler.postDelayed(this,1000);
+            i++;
+        }
+    };
+}
