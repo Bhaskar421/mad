@@ -1,0 +1,105 @@
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.Build;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+public class MainActivity extends AppCompatActivity {
+Button xml,json;
+TextView textdisplay;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        xml = findViewById(R.id.xmlxml);
+        json = findViewById(R.id.jsonxml);
+        textdisplay = findViewById(R.id.textDisplay);
+        xml.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+                    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+                    InputStream is = getAssets().open("Lab6.xml");
+                    DocumentBuilder db = dbf.newDocumentBuilder();
+                    Document d =db.parse(is);
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("---------XML DATA---------");
+                    NodeList nodelist =d.getElementsByTagName("city");
+                    for (int i=0;i<nodelist.getLength();i++)
+                    {
+                        Node node = nodelist.item(i);
+                        if (node.getNodeType() == node.ELEMENT_NODE)
+                        {
+                            Element element = (Element)node;
+                            sb.append("\n Name :").append(getValue("City_name",element));
+                            sb.append("\n Latitude:").append(getValue("Latitude",element));
+                            sb.append("\n Longitude :").append(getValue("Longitude",element));
+                            sb.append("\n Temperature :").append(getValue("Temperature",element));
+                            sb.append("\n Humidity :").append(getValue("Humidity",element));
+
+
+
+                        }
+                    }
+                    textdisplay.setText(sb.toString());
+                } catch (SAXException | IOException | ParserConfigurationException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        json.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+            @Override
+            public void onClick(View view) {
+              String Json;
+              StringBuilder sb = new StringBuilder();
+              try {
+                  InputStream is = getAssets().open("Lab6.json");
+                  int size = is.available();
+                  byte[] buffer = new byte[size];
+                  is.read(buffer);
+                  Json = new String(buffer, StandardCharsets.UTF_8);
+                  JSONArray jsonarray = new JSONArray(Json);
+                  sb.append("--------JSON DATA--------");
+                  for (int i=0;i<jsonarray.length();i++)
+                  {
+                      JSONObject jsonobject = jsonarray.getJSONObject(i);
+                      sb.append("\n Name :").append(jsonobject.getString("name"));
+                      sb.append("\n Latitude :").append(jsonobject.getString("lat"));
+                      sb.append("\n Longitude :").append(jsonobject.getString("long"));
+                      sb.append("\nTemperature :").append(jsonobject.getString("temp"));
+                      sb.append("\n Humidity :").append(jsonobject.getString("hum"));
+                  }
+                  textdisplay.setText(sb.toString());
+
+              } catch (Exception e)
+              {
+                  e.printStackTrace();
+              }
+            }
+        });
+    }
+    private String getValue(String tag, Element element)
+    {
+        return element.getElementsByTagName(tag).item(0).getChildNodes().item(0).getNodeValue();
+    }
+}
